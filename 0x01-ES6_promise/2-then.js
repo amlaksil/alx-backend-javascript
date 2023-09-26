@@ -12,8 +12,5 @@ export default function handleResponseFromAPI(promise) {
       console.log('Got a response from the API');
       return response;
     })
-    .catch(() => {
-      console.error('The fake API is not working currently');
-      return new Error();
-    });
+    .catch(() => new Error());
 }
