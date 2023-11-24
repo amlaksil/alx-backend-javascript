@@ -2,36 +2,38 @@ const fs = require('fs');
 
 function countStudents(path) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (error, data) => {
-      if (error) {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
         reject(new Error('Cannot load the database'));
         return;
       }
 
-      // Split the data into individual lines
-      const lines = data.split('\n');
-      lines.shift();
-      lines.pop();
+      const lines = data.trim().split('\n');
+      const students = lines.map((line) => line.split(','));
 
-      // Split the data into individual lines
-      console.log('Number of students:', lines.length);
-
-      const CSStudents = [];
-      const SWEStudents = [];
-      for (let i = 0; i < lines.length; i += 1) {
-      // Split the line into individual fields
-        const fields = lines[i].split(',');
-
-        if (fields[fields.length - 1] === 'CS') {
-          CSStudents.push(fields[0]);
-        } else {
-          SWEStudents.push(fields[0]);
+      const studentsByField = {};
+      students.forEach(([firstname, lastname, age, field]) => {
+        if (!firstname || !lastname || !age || !field) {
+          return; // Skip empty or invalid lines
         }
-      }
-      console.log(`Number of students in CS: ${CSStudents.length}. List: ${CSStudents.join(', ')}`);
-      console.log(`Number of students in SWE: ${SWEStudents.length}. List: ${SWEStudents.join(', ')}`);
-      resolve();
+
+        if (!studentsByField[field]) {
+          studentsByField[field] = [];
+        }
+
+        studentsByField[field].push(firstname);
+      });
+      const numberOfStudents = students.length - 1; // Subtract 1 to exclude the header line
+
+      delete studentsByField.field;
+      console.log(`Number of students: ${numberOfStudents}`);
+      Object.entries(studentsByField).forEach(([field, names]) => {
+        console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
+      });
+
+      resolve({ numberOfStudents, studentsByField });
     });
   });
 }
+
 module.exports = countStudents;
