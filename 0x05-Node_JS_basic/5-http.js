@@ -2,7 +2,7 @@ const http = require('http');
 const countStudents = require('./3-read_file_async');
 
 const port = 1245;
-const databasePath = process.argv[2];
+const databasePath = process.argv[2] || 'database.csv';
 
 const app = http.createServer((req, res) => {
   const { method, url } = req;
