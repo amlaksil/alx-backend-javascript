@@ -2,30 +2,42 @@ const fs = require('fs');
 
 function countStudents(path) {
   try {
+    // Read the database file synchronously
     const data = fs.readFileSync(path, 'utf8');
-
-    // Split the data into individual lines
     const lines = data.split('\n');
-    lines.shift();
-    lines.pop();
 
-    // Split the data into individual lines
-    console.log('Number of students:', lines.length);
+    // Remove empty lines
+    const validLines = lines.filter((line) => line.trim() !== '');
 
-    const CSStudents = [];
-    const SWEStudents = [];
-    for (let i = 0; i < lines.length; i += 1) {
-      // Split the line into individual fields
-      const fields = lines[i].split(',');
+    // Calculate the number of students
+    const numberOfStudents = validLines.length - 1; // Subtract 1 for the header line
 
-      if (fields[fields.length - 1] === 'CS') {
-        CSStudents.push(fields[0]);
+    // Log the total number of students
+    console.log(`Number of students: ${numberOfStudents}`);
+
+    // Count the number of students in each field
+    const fieldCounts = {};
+    for (let i = 1; i < validLines.length; i += 1) {
+      const fields = validLines[i].split(',');
+      const field = fields[3].trim();
+
+      if (Object.prototype.hasOwnProperty.call(fieldCounts, field)) {
+        fieldCounts[field] += 1;
       } else {
-        SWEStudents.push(fields[0]);
+        fieldCounts[field] = 1;
       }
     }
-    console.log(`Number of students in CS: ${CSStudents.length}. List: ${CSStudents.join(', ')}`);
-    console.log(`Number of students in SWE: ${SWEStudents.length}. List: ${SWEStudents.join(', ')}`);
+
+    // Log the number of students in each field and the list of first names
+    Object.keys(fieldCounts).forEach((field) => {
+      const count = fieldCounts[field];
+      const students = validLines
+        .slice(1) // Exclude the header line
+        .filter((line) => line.includes(field))
+        .map((line) => line.split(',')[0].trim());
+
+      console.log(`Number of students in ${field}: ${count}. List: ${students.join(', ')}`);
+    });
   } catch (error) {
     throw new Error('Cannot load the database');
   }
