@@ -20,6 +20,10 @@ describe('/login Endpoint', () => {
       json: true,
       body: userData
     }, (error, response, body) => {
+			if (error) {
+				done(error);
+				return;
+			}
       expect(response.statusCode).to.equal(200);
       expect(body).to.equal('Welcome JohnDoe');
       done();
@@ -34,15 +38,28 @@ describe('/login Endpoint', () => {
 describe('/available_payments Endpoint', () => {
   it('should return status code 200 and payment methods object', (done) => {
     request.get('http://localhost:7865/available_payments', (error, response, body) => {
+		if (error) {
+			done(error);
+			return;
+			}
       expect(response.statusCode).to.equal(200);
-      expect(body).to.deep.equal(JSON.stringify({
+
+			let parsedBody;
+      try {
+        parsedBody = JSON.parse(body);
+      } catch (parseError) {
+        done(parseError);
+        return;
+      }
+
+      expect(parsedBody).to.deep.equal({
         payment_methods: {
           credit_cards: true,
           paypal: false
         }
-      }));
+      });
       done();
-    });
+			});
   });
 
   // Additional test cases for the /available_payments endpoint
